@@ -1,0 +1,1 @@
+from src.modules.model_training.predict import predict_one_image, predict_video
