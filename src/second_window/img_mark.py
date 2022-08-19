@@ -8,7 +8,7 @@ import json,main
 from PIL import Image
 
 
-class mymainwindow(QWidget,Ui_Form):
+class ImgMaskWin(QWidget,Ui_Form):
     def __init__(self,parent=None, model_path = 'src/modules/model_training/model/static_model'):
         super().__init__(parent)
         self.setupUi(self,)
@@ -70,6 +70,6 @@ class mymainwindow(QWidget,Ui_Form):
 
 if __name__=='__main__':
     app = QApplication(sys.argv)
-    window = mymainwindow()
+    window = ImgMaskWin()
     window.show()
     sys.exit(app.exec_())

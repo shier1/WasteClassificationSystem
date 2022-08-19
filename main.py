@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from src.modules.ui.Mainwindow import Ui_MainWindow, QtWidgets
+from src.modules.ui.Mainwindow import Ui_MainWindow
 from src.second_window import img_mark
 from src.second_window import video_predict
 from src.second_window import img_mark_folder
@@ -22,28 +22,28 @@ class MainMenu(QMainWindow,Ui_MainWindow):
         self.model_fintuning_button.clicked.connect(self.shif_window4)
 
     def shift_window1(self):
-        self.img_mark_folder_win = img_mark_folder.childWindow()
+        self.img_mark_folder_win = img_mark_folder.ImgMarkFolderWin()
         self.img_mark_folder_win.show()
-        self.hide()
+        # self.hide()
         print(self.img_mark_folder_win.isVisible())
         
         if not self.img_mark_folder_win.isVisible():
             self.show()
 
     def shift_window2(self):
-        self.img_mark_win = img_mark.mymainwindow()
+        self.img_mark_win = img_mark.ImgMaskWin()
         self.img_mark_win.show()
-        self.hide()
+        # self.hide()
 
     def shift_window3(self):
-        self.video_predict_win = video_predict.myDialog()
+        self.video_predict_win = video_predict.VideoPreWin()
         self.video_predict_win.show()
-        self.hide()
+        # self.hide()
     
     def shif_window4(self):
         self.model_train_win = model_train.TrainWin()
         self.model_train_win.show()
-        self.hide()
+        # self.hide()
     
 
 
@@ -52,3 +52,4 @@ if __name__=='__main__':
     main_menu = MainMenu()
     main_menu.show()
     sys.exit(app.exec_())
+

@@ -15,9 +15,9 @@ import glob
 import time
 import numpy as np
 
-class myDialog(first.Ui_MainWindow, QMainWindow):
+class VideoPreWin(first.Ui_MainWindow, QMainWindow):
     def __init__(self, model_dir = './model/static_model'):
-        super(myDialog, self).__init__()
+        super(VideoPreWin, self).__init__()
         super().setupUi(self)#调用父类的setupUI函数
         # 播放器
         self.model_dir = model_dir
@@ -109,11 +109,6 @@ class myDialog(first.Ui_MainWindow, QMainWindow):
         video.release()  # 释放
             # cv2.imwrite(fileName, frame, [cv2.IMWRITE_JPEG_QUALITY, 100])
 
-
-
-
-
-
     def msg(self,Filepath):         #储存路径
         self.m = QtWidgets.QFileDialog.getExistingDirectory(None,"选取文件夹","C:/")  # 起始路径
         self.lineEdit.setText(self.m)
@@ -179,7 +174,6 @@ class myDialog(first.Ui_MainWindow, QMainWindow):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    ui = myDialog()
+    ui = VideoPreWin()
     ui.show()
     sys.exit(app.exec_())
-

@@ -11,9 +11,9 @@ import os
 
 
 
-class childWindow(Ui_Form,QWidget):
+class ImgMarkFolderWin(Ui_Form,QWidget):
     def __init__(self,parent=None):
-        super(childWindow, self).__init__(parent)
+        super(ImgMarkFolderWin, self).__init__(parent)
         self.setupUi(self)
         self.setWindowTitle("图像标注")   # 设置窗口名
         self.pushButton_4.clicked.connect(self.ChoicefileImage)#打开图片
@@ -192,6 +192,6 @@ class childWindow(Ui_Form,QWidget):
 
 if __name__=='__main__':
     app = QApplication(sys.argv)
-    window = childWindow()
+    window = ImgMarkFolderWin()
     window.show()
     sys.exit(app.exec_())
