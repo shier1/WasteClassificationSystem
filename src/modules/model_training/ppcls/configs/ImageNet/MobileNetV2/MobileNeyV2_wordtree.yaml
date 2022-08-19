@@ -1,0 +1,162 @@
+# global configs
+Global:
+  checkpoints: null
+  pretrained_model: null # mobilenetv2_cbam/best_model
+  output_dir: ./output/
+  device: gpu
+  save_interval: 1
+  eval_during_train: True
+  eval_interval: 1
+  epochs: 90
+  print_batch_step: 50
+  use_visualdl: False
+  # used for static mode and model export
+  image_shape: [3, 224, 224]
+  save_inference_dir: ./inference
+  # training model under @to_static
+  to_static: False
+  amp: True
+  
+# model architecture
+Arch:
+  name: MobileNetV2
+  class_num: 208
+ 
+# loss function config for traing/eval process
+# Loss:
+#   Train:
+#     - CELoss:
+#         weight: 1
+#   Eval:
+#     - CELoss:
+#         weight: 1
+
+Loss:
+  Train:
+    - CELossWordTree:
+        weight: 1
+        wordtree_json_path: 'dataset/word_tree.json'
+  Eval:
+    - CELossWordTree:
+        weight: 1
+        wordtree_json_path: 'dataset/word_tree.json'
+
+
+# Loss:
+#   Train:
+#     - CostSensitiveCE:
+#         gamma: 1
+#         num_class_list: [4400, 1520, 560, 1680]
+#         weight: 1
+#   Eval:
+#     - CostSensitiveCE:
+#         gamma: 1
+#         num_class_list: [4400, 1520, 560, 1680]
+#         weight: 1
+
+
+Optimizer:
+  name: Momentum
+  momentum: 0.9
+  lr:
+    name: Cosine
+    learning_rate: 0.0001
+  regularizer:
+    name: 'L2'
+    coeff: 0.00004
+
+
+# data loader for train and eval
+DataLoader:
+  Train:
+    dataset:
+      name: WordTreeDataset # ImBalanceImageNetDataset # ImageNetDataset
+      image_root: .
+      cls_label_path: dataset/word_tree_train.txt
+      class_nums: 208
+      transform_ops:
+        - DecodeImage:
+            to_rgb: True
+            channel_first: False
+        - RandCropImage:
+            size: 224
+        - RandFlipImage:
+            flip_code: 1
+        - RandAugment:
+            num_layers: 2
+            magnitude: 5
+        - NormalizeImage:
+            scale: 1.0/255.0
+            mean: [0.53870025, 0.58465116, 0.62831561]
+            std: [0.24331439, 0.23134713, 0.22307978]
+            order: ''
+      # batch_transform_ops:
+      #   - MixupOperator:
+      #       alpha: 1
+    
+    sampler:
+      name: DistributedBatchSampler
+      batch_size: 48
+      drop_last: False
+      shuffle: True
+    loader:
+      num_workers: 8
+      use_shared_memory: True
+
+  Eval:
+    dataset: 
+      name: WordTreeDataset #ImageNetDataset # ImBalanceImageNetDataset
+      image_root: .
+      cls_label_path: ./dataset/word_tree_val.txt
+      class_nums: 208
+      transform_ops:
+        - DecodeImage:
+            to_rgb: True
+            channel_first: False
+        - ResizeImage:
+            resize_short: 256
+        - CropImage:
+            size: 224
+        - NormalizeImage:
+            scale: 1.0/255.0
+            mean: [0.53870025, 0.58465116, 0.62831561]
+            std: [0.24331439, 0.23134713, 0.22307978]
+            order: ''
+    sampler:
+      name: DistributedBatchSampler
+      batch_size: 64
+      drop_last: False
+      shuffle: False
+    loader:
+      num_workers: 4
+      use_shared_memory: True
+
+Infer:
+  infer_imgs: docs/images/inference_deployment/whl_demo.jpg
+  batch_size: 10
+  transforms:
+    - DecodeImage:
+        to_rgb: True
+        channel_first: False
+    - ResizeImage:
+        resize_short: 256
+    - CropImage:
+        size: 224
+    - NormalizeImage:
+        scale: 1.0/255.0
+        mean: [0.53870025, 0.58465116, 0.62831561]
+        std: [0.24331439, 0.23134713, 0.22307978]
+        order: ''
+    - ToCHWImage:
+  PostProcess:
+    name: Topk
+    topk: 5
+    class_id_map_file: ppcls/utils/label_list.txt
+
+Metric:
+  Train:
+    - WordTreeTopkAcc:
+        topk: [1, 5]
+  Eval:
+    - WordTreeTopkAcc:
+        topk: [1, 5]
