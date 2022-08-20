@@ -1,22 +1,21 @@
-import paddle.jit
-from PyQt5 import QtCore, QtGui, QtWidgets
-import sys, os
-import src.modules.ui.video_mark_ui as first
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
-from PyQt5.QtMultimediaWidgets import QVideoWidget
-from src.modules.model_training.predict import predict_video
+import os
 import cv2
 import json
-import threading
-import glob
 import time
-import numpy as np
+import threading
+import paddle.jit
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
+
+from src.modules.model_training.predict import predict_video
+import src.modules.ui.video_mark_ui as first
+
 
 class VideoPreWin(first.Ui_MainWindow, QMainWindow):
-    def __init__(self, model_dir = './model/static_model'):
+    def __init__(self, main_menu_win, model_dir = './model/static_model'):
         super(VideoPreWin, self).__init__()
         super().setupUi(self)#调用父类的setupUI函数
         # 播放器
@@ -31,9 +30,24 @@ class VideoPreWin(first.Ui_MainWindow, QMainWindow):
         self.toolButton.clicked.connect(self.msg)
         self.comboBox.currentIndexChanged.connect(self.selectionChange)
         self.outButton.clicked.connect(self.link_outfile)
+        self.main_menu_win = main_menu_win
 
-    # 打开视频文件
+    def closeEvent(self, a0: QCloseEvent) -> None:
+        reply = QMessageBox.question(self,
+                                     "本程序",
+                                     "是否回到主窗口",
+                                     QMessageBox.Yes|QMessageBox.No,
+                                     QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.main_menu_win.show()
+            return super().closeEvent(a0)
+        else:
+            return super().closeEvent(a0)
+
     def open(self):
+        """
+        打开视频文件
+        """
         qurl1 = QFileDialog.getOpenFileUrl()[0]
         file_url = qurl1.url()
         self.file_path = file_url.split('///')[-1]
@@ -45,7 +59,6 @@ class VideoPreWin(first.Ui_MainWindow, QMainWindow):
         ta.start()
 
     def Videochange(self):
-
         self.player.setMedia(QMediaContent(QUrl.fromLocalFile(self.Videoout_path)))
         self.player.play()
 
@@ -80,9 +93,8 @@ class VideoPreWin(first.Ui_MainWindow, QMainWindow):
         model = paddle.jit.load(self.model_dir)
         ret = True
         if not capture.isOpened():
-            print("视频打开错误")
+            QMessageBox.information(self, '错误', "视频打开失败")
             ret = False
-        print('开始处理')
         self.json_path = []
         self.fileName_list = []
         self.label_list = []
@@ -104,7 +116,6 @@ class VideoPreWin(first.Ui_MainWindow, QMainWindow):
                 self.fileName_list.append(fileName)
                 self.label_list.append(lb)
             video.write(res_frame)  # 把图片写进视频
-        print('处理完成')
         self.lineEdit_2.setText('Finished')
         video.release()  # 释放
             # cv2.imwrite(fileName, frame, [cv2.IMWRITE_JPEG_QUALITY, 100])
@@ -115,8 +126,7 @@ class VideoPreWin(first.Ui_MainWindow, QMainWindow):
 
 
     def selectionChange(self,i):
-
-        print('current index',i,'selection changed', self.comboBox.currentText())
+        QMessageBox.information(self, "提示", f'current index {i}, selection changed: {self.comboBox.currentText()}')
 
     def link_outfile(self):
         ta = threading.Thread(target=self.outfile)
@@ -149,9 +159,9 @@ class VideoPreWin(first.Ui_MainWindow, QMainWindow):
             isExists = os.path.exists(txts_Name)
             if not isExists:
                 os.makedirs(txts_Name)
-            text1 = os.path.join(txts_Name, 'text1.txt')  # 存储路径
+            text1 = os.path.join(txts_Name, 'train.txt')  # 存储路径
             text1 = text1.replace('\\', '/')
-            text2 = os.path.join(txts_Name, 'text2.txt')  # 存储路径
+            text2 = os.path.join(txts_Name, 'labellist.txt')  # 存储路径
             text2 = text2.replace('\\', '/')
             data1 = open(text1, 'w+')
             num = 0
@@ -172,8 +182,8 @@ class VideoPreWin(first.Ui_MainWindow, QMainWindow):
         self.lineEdit_2.setText('导出完成')
 
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    ui = VideoPreWin()
-    ui.show()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+#     app = QtWidgets.QApplication(sys.argv)
+#     ui = VideoPreWin()
+#     ui.show()
+#     sys.exit(app.exec_())

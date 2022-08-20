@@ -1,21 +1,19 @@
-import paddle.jit
-from PyQt5 import QtCore, QtGui, QtWidgets
-import sys, os
-import src.modules.ui.video_mark_ui as first
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
-from PyQt5.QtMultimediaWidgets import QVideoWidget
-from src.modules.model_training.predict import predict_video
+import os
 import cv2
 import json
-import threading
-import glob
 import time
-import numpy as np
+import threading
+import paddle.jit
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QWidget, QFileDialog
+from PyQt5.Qtcore import QUrl
+from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 
-class myDialog(first.Ui_MainWindow, QWidget):
+from src.modules.model_training.predict import predict_video
+from src.modules.ui.video_mark_ui import Ui_MainWindow
+
+
+class myDialog(Ui_MainWindow, QWidget):
     def __init__(self, Dialog, model_dir = 'src/modules/model_training/model/static_model.pdiparams'):
         super(myDialog, self).__init__(Dialog)
         super().setupUi(Dialog)#调用父类的setupUI函数
@@ -177,11 +175,10 @@ class myDialog(first.Ui_MainWindow, QWidget):
         self.lineEdit_2.setText('导出完成')
 
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = myDialog(MainWindow)
-    # ui.setupUi(MainWindow)  myDialog类的构造函数已经调用了这个函数，这行代码可以删去
-    MainWindow.show()
-    sys.exit(app.exec_())
-
+# if __name__ == "__main__":
+#     app = QtWidgets.QApplication(sys.argv)
+#     MainWindow = QtWidgets.QMainWindow()
+#     ui = myDialog(MainWindow)
+#     # ui.setupUi(MainWindow)  myDialog类的构造函数已经调用了这个函数，这行代码可以删去
+#     MainWindow.show()
+#     sys.exit(app.exec_())

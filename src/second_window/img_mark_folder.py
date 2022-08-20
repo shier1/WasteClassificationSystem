@@ -1,21 +1,19 @@
-import cv2
-import numpy as np
-from src.modules.ui.img_mark_folder_ui import Ui_Form
-from PyQt5.QtWidgets import QApplication,QMainWindow,QDialog
-import sys
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-import json
 import os
+import cv2
+import json
+import numpy as np
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget, QApplication
+from PyQt5.QtGui import QImage,QPixmap, QCloseEvent
 
+from src.modules.ui.img_mark_folder_ui import Ui_Form
 
 
 class ImgMarkFolderWin(Ui_Form,QWidget):
-    def __init__(self,parent=None):
-        super(ImgMarkFolderWin, self).__init__(parent)
+    def __init__(self,main_menu_win):
+        super(ImgMarkFolderWin, self).__init__()
         self.setupUi(self)
         self.setWindowTitle("图像标注")   # 设置窗口名
+        self.main_menu_win = main_menu_win
         self.pushButton_4.clicked.connect(self.ChoicefileImage)#打开图片
         self.comboBox.setEditable(True)
         self.comboBox.lineEdit().setPlaceholderText("新建标签")
@@ -28,8 +26,17 @@ class ImgMarkFolderWin(Ui_Form,QWidget):
         self.listWidget.verticalScrollBar().valueChanged.connect(lambda: ...)
         self.path_1 = None
 
-
-
+    def closeEvent(self, a0: QCloseEvent) -> None:
+        reply = QMessageBox.question(self,
+                                     "本程序",
+                                     "是否返回主菜单？",
+                                     QMessageBox.Yes|QMessageBox.No,
+                                     QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.main_menu_win.show()
+            return super().closeEvent(a0)
+        else:
+            return super().closeEvent(a0) 
 
     def open2(self):
         self.path_1=QFileDialog.getExistingDirectory(self, "选择保存路径","/")
@@ -190,8 +197,8 @@ class ImgMarkFolderWin(Ui_Form,QWidget):
             self.show_label()
 
 
-if __name__=='__main__':
-    app = QApplication(sys.argv)
-    window = ImgMarkFolderWin()
-    window.show()
-    sys.exit(app.exec_())
+# if __name__=='__main__':
+#     app = QApplication(sys.argv)
+#     window = ImgMarkFolderWin()
+#     window.show()
+#     sys.exit(app.exec_())
